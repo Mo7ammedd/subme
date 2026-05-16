@@ -7,6 +7,26 @@ const UA =
 
 const app = express()
 
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ?? '*')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin
+  if (ALLOWED_ORIGINS.includes('*')) {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+  } else if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+    res.setHeader('Vary', 'Origin')
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Max-Age', '86400')
+  if (req.method === 'OPTIONS') return res.status(204).end()
+  next()
+})
+
 registerMovieRoutes(app)
 
 app.get('/api', (_req, res) => {
