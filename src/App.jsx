@@ -3,7 +3,17 @@ import { AnimatePresence, motion } from 'framer-motion'
 import './App.css'
 
 const TMDB_IMG = 'https://image.tmdb.org/t/p'
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+
+function normalizeApiBase(raw) {
+  if (raw == null) return ''
+  const s = String(raw).trim().replace(/\/+$/, '')
+  if (!s) return ''
+  if (/^https?:\/\//i.test(s)) return s
+  if (s.startsWith('//')) return `https:${s}`
+  if (s.startsWith('/')) return s
+  return `https://${s}`
+}
+const API_BASE = normalizeApiBase(import.meta.env.VITE_API_BASE_URL)
 const HOME_ENDPOINT = `${API_BASE}/api/home`
 const SEARCH_ENDPOINT = `${API_BASE}/api/movies/search?q=`
 const DETAILS_ENDPOINT = `${API_BASE}/api/movies/`
